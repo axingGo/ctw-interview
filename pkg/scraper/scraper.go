@@ -3,6 +3,7 @@ package scraper
 import (
 	"ctx-interview/pkg/storage"
 	"fmt"
+	"strconv"
 
 	"github.com/gocolly/colly"
 )
@@ -60,11 +61,15 @@ func (s *Scraper) Scrape(task Task) ([]*storage.HotelInfo, error) {
 func ScrapeHotelDetail(href string) (*storage.HotelInfo, error) {
 	var hotel *storage.HotelInfo
 	c := colly.NewCollector()
-	c.OnHTML(`a[rel="noopener noreferrer nofollow"]`, func(e *colly.HTMLElement) {
-		c.OnHTML(`h2.hpipapi`, func(e *colly.HTMLElement) {
-			// 获取酒店名称
-			hotel.HotelName = e.Text
-		})
+	// 获取酒店名称
+	c.OnHTML(`h2.hpipapi`, func(e *colly.HTMLElement) {
+		hotel.HotelName = e.Text
+	})
+	// 获取评分名称
+	c.OnHTML(`div[data-testid="pdp-reviews-highlight-banner-host-rating"] div[aria-hidden="true"]`, func(e *colly.HTMLElement) {
+		rating := e.Text
+		ratingF, _ := strconv.ParseFloat(rating, 64)
+		hotel.Star = int(ratingF * 100)
 	})
 	// todo 获取其他信息
 
