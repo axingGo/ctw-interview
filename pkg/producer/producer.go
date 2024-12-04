@@ -38,7 +38,7 @@ func (p *Producer) LoadTasks(filePath string) ([]Task, error) {
 func (p *Producer) SendTasks(queueName string, tasks []Task) error {
 	for _, task := range tasks {
 		taskJSON, _ := json.Marshal(task)
-		if err := p.queue.Enqueue(queueName, string(taskJSON)); err != nil {
+		if err := p.queue.Client.Publish(p.queue.Ctx, queueName, string(taskJSON)).Err(); err != nil {
 			return err
 		}
 	}

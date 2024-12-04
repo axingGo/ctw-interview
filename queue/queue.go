@@ -8,8 +8,8 @@ import (
 )
 
 type Queue struct {
-	client *redis.Client
-	ctx    context.Context
+	Client *redis.Client
+	Ctx    context.Context
 }
 
 func NewQueue(redisAddr string) *Queue {
@@ -18,15 +18,7 @@ func NewQueue(redisAddr string) *Queue {
 		Addr: redisAddr,
 	})
 	return &Queue{
-		client: client,
-		ctx:    context.Background(),
+		Client: client,
+		Ctx:    context.Background(),
 	}
-}
-
-func (q *Queue) Enqueue(queueName string, message string) error {
-	return q.client.LPush(q.ctx, queueName, message).Err()
-}
-
-func (q *Queue) Dequeue(queueName string) (string, error) {
-	return q.client.RPop(q.ctx, queueName).Result()
 }

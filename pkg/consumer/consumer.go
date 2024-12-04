@@ -5,8 +5,8 @@ import (
 	"ctx-interview/pkg/storage"
 	"ctx-interview/queue"
 	"encoding/json"
+	"fmt"
 	"log"
-	"time"
 )
 
 type Consumer struct {
@@ -24,16 +24,21 @@ func NewConsumer(queue *queue.Queue, scraper *scraper.Scraper, db *storage.Datab
 }
 
 func (c *Consumer) Start(queueName string) {
+	// 订阅任务 Channel
+	sub := c.queue.Client.Subscribe(c.queue.Ctx, queueName)
+	defer sub.Close()
+
+	fmt.Println("Subscribed to channel:", queueName)
+
 	for {
-		taskJSON, err := c.queue.Dequeue(queueName)
+		msg, err := sub.ReceiveMessage(c.queue.Ctx)
 		if err != nil {
-			log.Println("Failed to dequeue task:", err)
-			time.Sleep(time.Second)
-			continue
+			fmt.Println("Error receiving message:", err)
+			break
 		}
 
 		var task scraper.Task
-		if err := json.Unmarshal([]byte(taskJSON), &task); err != nil {
+		if err := json.Unmarshal([]byte(msg.Payload), &task); err != nil {
 			log.Println("Failed to parse task:", err)
 			continue
 		}
