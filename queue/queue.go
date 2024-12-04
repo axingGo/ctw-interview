@@ -2,6 +2,7 @@ package queue
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -12,6 +13,7 @@ type Queue struct {
 }
 
 func NewQueue(redisAddr string) *Queue {
+	fmt.Println(redisAddr)
 	client := redis.NewClient(&redis.Options{
 		Addr: redisAddr,
 	})

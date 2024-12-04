@@ -13,7 +13,7 @@ import (
 )
 
 var consumerCmd = &cobra.Command{
-	Use:   "start consumer",
+	Use:   "start-consumer",
 	Short: "Start a consumer to process tasks from the queue.",
 	Run: func(cmd *cobra.Command, args []string) {
 		queueName, _ := cmd.Flags().GetString("queue")

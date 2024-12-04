@@ -6,6 +6,7 @@ import (
 	"ctx-interview/queue"
 	"encoding/json"
 	"log"
+	"time"
 )
 
 type Consumer struct {
@@ -27,6 +28,7 @@ func (c *Consumer) Start(queueName string) {
 		taskJSON, err := c.queue.Dequeue(queueName)
 		if err != nil {
 			log.Println("Failed to dequeue task:", err)
+			time.Sleep(time.Second)
 			continue
 		}
 
@@ -42,7 +44,7 @@ func (c *Consumer) Start(queueName string) {
 			continue
 		}
 
-		if err := c.database.SaveResults(hotelInfos); err != nil {
+		if err := c.database.SaveResults(queueName, hotelInfos); err != nil {
 			log.Println("Failed to save results:", err)
 		}
 	}

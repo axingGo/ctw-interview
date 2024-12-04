@@ -4,11 +4,13 @@ package storage
 
 import (
 	"database/sql"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type HotelInfo struct {
+	QueueName      string
 	HotelName      string
 	Star           int
 	Price          float64
@@ -34,13 +36,13 @@ func NewDatabase(dsn string) (*Database, error) {
 	return &Database{db: db}, nil
 }
 
-func (d *Database) SaveResults(hotels []*HotelInfo) error {
+func (d *Database) SaveResults(queueName string, hotels []*HotelInfo) error {
 	for _, result := range hotels {
 		_, err := d.db.Exec(`INSERT INTO hotel 
-            (hotel_name, star, price, price_before_tax, check_in_date, check_out_date, guests) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            (hotel_name, star, price, price_before_tax, check_in_date, check_out_date, guests,create_time,update_time) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, queueName,
 			result.HotelName, result.Star, result.Price, result.PriceBeforeTax,
-			result.CheckInDate, result.CheckOutDate, result.Guests,
+			result.CheckInDate, result.CheckOutDate, result.Guests, time.Now().Unix(), time.Now().Unix(),
 		)
 		if err != nil {
 			return err
