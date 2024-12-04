@@ -20,18 +20,30 @@ func NewScraper() *Scraper {
 }
 
 func (s *Scraper) Scrape(task Task) ([]*storage.HotelInfo, error) {
-	var results []*storage.HotelInfo
 	c := colly.NewCollector()
 
-	// 设置回调函数，提取房源名称和房客推荐
-	c.OnHTML("div.lxq01kf", func(e *colly.HTMLElement) {
-		// 提取房源名称
-		propertyName := e.ChildText("span.a8jt5op") // 这里通过指定的类名获取房源名称
-		if propertyName != "" {
-			fmt.Println("房源名称: ", propertyName)
+	// 存放 href 值的切片
+	var hrefs []string
+
+	// 查找 a 标签，rel 等于 "noopener noreferrer nofollow"
+	c.OnHTML(`a[rel="noopener noreferrer nofollow"]`, func(e *colly.HTMLElement) {
+		// 提取 href 属性
+		href := e.Attr("href")
+		if href != "" {
+			hrefs = append(hrefs, href)
 		}
 	})
 
+	// 处理请求错误
+	c.OnError(func(r *colly.Response, err error) {
+		fmt.Println("Request failed:", err)
+	})
 	err := c.Visit(task.URL)
-	return results, err
+
+	// 到详情页获取hotel具体信息
+	var hotelInfos []*storage.HotelInfo
+	// for _, href := range hrefs {
+	// 	// todo
+	// }
+	return hotelInfos, err
 }
