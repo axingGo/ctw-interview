@@ -39,11 +39,42 @@ func (s *Scraper) Scrape(task Task) ([]*storage.HotelInfo, error) {
 		fmt.Println("Request failed:", err)
 	})
 	err := c.Visit(task.URL)
+	if err != nil {
+		fmt.Println("Request Visit failed:", err)
+	}
 
 	// 到详情页获取hotel具体信息
 	var hotelInfos []*storage.HotelInfo
-	// for _, href := range hrefs {
-	// 	// todo
-	// }
+	for _, href := range hrefs {
+		// todo
+		hotel, err := ScrapeHotelDetail(href)
+		if err != nil {
+			fmt.Printf("ScrapeHotelDetail url:%s,failed:%v\n", href, err)
+			continue
+		}
+		hotelInfos = append(hotelInfos, hotel)
+	}
 	return hotelInfos, err
+}
+
+func ScrapeHotelDetail(href string) (*storage.HotelInfo, error) {
+	var hotel *storage.HotelInfo
+	c := colly.NewCollector()
+	c.OnHTML(`a[rel="noopener noreferrer nofollow"]`, func(e *colly.HTMLElement) {
+		c.OnHTML(`h2.hpipapi`, func(e *colly.HTMLElement) {
+			// 获取酒店名称
+			hotel.HotelName = e.Text
+		})
+	})
+	// todo 获取其他信息
+
+	// 处理请求错误
+	c.OnError(func(r *colly.Response, err error) {
+		fmt.Println("Request failed:", err)
+	})
+	err := c.Visit(href)
+	if err != nil {
+		fmt.Println("Visit failed:", err)
+	}
+	return hotel, nil
 }
