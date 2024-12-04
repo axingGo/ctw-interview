@@ -9,7 +9,7 @@ import (
 )
 
 var producerCmd = &cobra.Command{
-	Use:   "producer",
+	Use:   "start producer",
 	Short: "Start a producer to send tasks to the queue.",
 	Run: func(cmd *cobra.Command, args []string) {
 		queueName, _ := cmd.Flags().GetString("queue")

@@ -1,6 +1,13 @@
 package main
 
-import "ctx-interview/cmd"
+import (
+	"ctx-interview/cmd"
+	"ctx-interview/conf"
+)
+
+func init() {
+	conf.LoadConfig()
+}
 
 func main() {
 	err := cmd.CmdExec()
